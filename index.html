@@ -181,18 +181,44 @@
     </div>
   </div>
 
- <script>
-  // 🔥 CHANGE THIS ONLY when menu changes
-  const MENU_URL = "https://kira980.github.io/lastella_menu_2026/";
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  // Optional: update status text dynamically
-  const statusText = document.querySelector(".status span:last-child");
-  statusText.innerText = "Opening menu...";
+<script>
+  const SUPABASE_URL = "https://YOUR_PROJECT_ID.supabase.co";
+  const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
 
-  // Smooth delay for luxury feel
-  setTimeout(function () {
-    window.location.replace(MENU_URL);
-  }, 1400); // slightly longer = smoother experience
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function openMenu() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("r");
+
+    const statusText = document.querySelector(".status span:last-child");
+
+    if (!slug) {
+      statusText.innerText = "Menu not found";
+      return;
+    }
+
+    statusText.innerText = "Opening menu...";
+
+    const { data, error } = await db
+      .from("restaurants")
+      .select("menu_url, is_active")
+      .eq("slug", slug)
+      .single();
+
+    if (error || !data || !data.is_active) {
+      statusText.innerText = "Menu unavailable";
+      return;
+    }
+
+    setTimeout(() => {
+      window.location.replace(data.menu_url);
+    }, 1200);
+  }
+
+  openMenu();
 </script>
 
 </body>
