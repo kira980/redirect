@@ -203,7 +203,7 @@
     statusText.innerText = "Opening menu...";
 
     const { data, error } = await db
-      .from("restaurants")
+      .from("restaurant")
       .select("menu_url, is_active")
       .eq("slug", slug)
       .single();
