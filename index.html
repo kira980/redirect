@@ -200,7 +200,7 @@
       return;
     }
 
-    statusText.innerText = "Opening menu...";
+      statusText.innerText = "Opening menu...";
 
     const { data, error } = await db
       .from("restaurant")
@@ -208,8 +208,8 @@
       .eq("slug", slug)
       .single();
 
-    if (error || !data || !data.is_active) {
-      statusText.innerText = "Menu unavailable";
+    if (error || !data || !data.is_active || !data.menu_url) {
+      //redirectToDefaultMenu("Menu unavailable");
       return;
     }
 
@@ -217,6 +217,9 @@
       window.location.replace(data.menu_url);
     }, 1200);
   }
+
+  openMenu();
+</script>
 
   openMenu();
 </script>
