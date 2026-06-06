@@ -5,6 +5,10 @@
   <title>La Stella | Welcome</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -15,9 +19,18 @@
       justify-content: center;
       background: radial-gradient(circle at top, #222222 0%, #020202 40%, #000000 100%);
       color: #f5f5f5;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: "Cairo", system-ui, -apple-system, sans-serif;
       overflow: hidden;
       position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 45%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: -2;
     }
 
     body::after {
@@ -31,41 +44,74 @@
       z-index: -1;
     }
 
+    .particles {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      border-radius: 50%;
+      background: rgba(255, 215, 0, 0.85);
+      filter: blur(0.3px);
+      opacity: 0.7;
+      animation: floatUp 9s linear infinite;
+    }
+    .particle:nth-child(2) { width:2px;height:2px;left:20%;animation-duration:11s;animation-delay:-3s;opacity:0.5; }
+    .particle:nth-child(3) { width:4px;height:4px;left:40%;animation-duration:13s;animation-delay:-6s;opacity:0.7; }
+    .particle:nth-child(4) { width:2px;height:2px;left:60%;animation-duration:10s;animation-delay:-2s;opacity:0.6; }
+    .particle:nth-child(5) { width:3px;height:3px;left:75%;animation-duration:14s;animation-delay:-5s;opacity:0.8; }
+    .particle:nth-child(6) { width:2px;height:2px;left:10%;animation-duration:12s;animation-delay:-4s;opacity:0.5; }
+
     .wrapper { text-align: center; padding: 24px; }
 
     .logo-wrapper {
-      width: 200px;
-      height: 200px;
+      width: 200px; height: 200px;
       margin: 0 auto 20px;
+      position: relative;
+    }
+
+    .logo-wrapper::before {
+      content: "";
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      box-shadow: 0 0 35px rgba(255,215,0,0.4), 0 0 70px rgba(255,215,0,0.18);
+      opacity: 0.8;
+      filter: blur(2px);
+      z-index: -2;
     }
 
     .logo-wrapper img {
-      width: 100%;
-      height: 100%;
+      width: 100%; height: 100%;
       object-fit: contain;
       display: block;
       border-radius: 50%;
     }
 
     .headline {
+      font-family: "Playfair Display", serif;
       font-size: 24px;
       margin-bottom: 6px;
       letter-spacing: 0.06em;
     }
 
-    .sub-headline {
-      font-size: 14px;
-      opacity: 0.88;
-    }
-
+    .sub-headline { font-size: 14px; opacity: 0.88; }
     .sub-headline span {
       color: #ffd700;
       font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-family: "Playfair Display", serif;
+      font-size: 15px;
     }
 
     .divider {
-      width: 120px;
-      height: 1px;
+      width: 120px; height: 1px;
       margin: 18px auto;
       background: linear-gradient(to right, transparent, rgba(255,215,0,0.85), transparent);
     }
@@ -80,19 +126,48 @@
     }
 
     .dot {
-      width: 9px;
-      height: 9px;
+      width: 9px; height: 9px;
       border-radius: 50%;
       background: #ffd700;
+      position: relative;
+    }
+
+    .dot::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,215,0,0.6);
+      animation: ping 1s linear infinite;
+    }
+
+    @keyframes ping {
+      0%   { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.9); opacity: 0; }
+    }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh); opacity: 0; }
+      10%  { opacity: 0.75; }
+      90%  { opacity: 0.4; }
+      100% { transform: translateY(-10vh); opacity: 0; }
     }
   </style>
 </head>
-
 <body>
+
+  <div class="particles">
+    <div class="particle" style="left:30%;animation-delay:-1s;"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
 
   <div class="wrapper">
     <div class="logo-wrapper">
-      <img src="images/lastella-logo.png" alt="La Stella Logo" onerror="this.style.display='none'">
+      <img src="images/lastella-logo.png" alt="La Stella Restaurant & Café Logo">
     </div>
 
     <div class="headline">مرحبًا بكم في لاستيلا</div>
@@ -102,87 +177,52 @@
 
     <div class="status">
       <span class="dot"></span>
-      <span id="statusText">جارٍ فتح المنيو...</span>
+      <span>جارٍ فتح المنيو...</span>
     </div>
   </div>
 
-  <!-- Better: download this file and put it in your GitHub folder -->
-  <script src="supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    const BACKUP_URL = "https://kira980.github.io/backup/";
-    const SUPABASE_URL = "https://xkwrahcccckmrgiqrhoe.supabase.co";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE";
+<script>
+  const SUPABASE_URL = 'https://xkwrahcccckmrgiqrhoe.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrd3JhaGNjY2NrbXJnaXFyaG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODk2OTAsImV4cCI6MjA5Mjg2NTY5MH0.IapomfS37BK4KYUgWqfMz2DA8V1_utcFTJl8pU3fUQQ';
 
-    const statusText = document.getElementById("statusText");
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function redirectToBackup() {
-      window.location.replace(BACKUP_URL);
+  async function openMenu() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("r");
+
+    const statusText = document.querySelector(".status span:last-child");
+
+    if (!slug) {
+      statusText.innerText = "Menu not found";
+      return;
     }
 
-    function redirectWithTimeout(url, delay = 600) {
-      setTimeout(() => {
-        window.location.replace(url);
-      }, delay);
+      statusText.innerText = "Opening menu...";
+
+    const { data, error } = await db
+      .from("restaurant")
+      .select("menu_url, is_active")
+      .eq("slug", slug)
+      .single();
+
+    if (error || !data || !data.is_active || !data.menu_url) {
+      //redirectToDefaultMenu("Menu unavailable");
+      //window.location.replace("https://kira980.github.io/backup/");
+      return;
     }
 
-    window.onerror = function () {
-      redirectToBackup();
-    };
+    setTimeout(() => {
+      window.location.replace(data.menu_url);
+    }, 1200);
+  }
 
-    window.onunhandledrejection = function () {
-      redirectToBackup();
-    };
+  openMenu();
+</script>
 
-    async function openMenu() {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const slug = params.get("r");
 
-        if (!slug) {
-          redirectToBackup();
-          return;
-        }
-
-        if (!window.supabase) {
-          redirectToBackup();
-          return;
-        }
-
-        statusText.innerText = "Opening menu...";
-
-        const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const request = db
-          .from("restaurant")
-          .select("menu_url, is_active")
-          .eq("slug", slug)
-          .single();
-
-        const timeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("Supabase timeout")), 4000);
-        });
-
-        const { data, error } = await Promise.race([
-          request,
-          timeout
-        ]);
-
-        if (error || !data || !data.is_active || !data.menu_url) {
-         // redirectToBackup();
-          return;
-        }
-
-        redirectWithTimeout(data.menu_url, 600);
-
-      } catch (err) {
-        console.error("Menu redirect error:", err);
-       // redirectToBackup();
-      }
-    }
-
-    openMenu();
-  </script>
 
 </body>
 </html>
