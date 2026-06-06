@@ -181,7 +181,7 @@
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-js@2"></script>
 
 <script>
   const SUPABASE_URL = 'https://xkwrahcccckmrgiqrhoe.supabase.co';
@@ -210,7 +210,7 @@
 
     if (error || !data || !data.is_active || !data.menu_url) {
       //redirectToDefaultMenu("Menu unavailable");
-
+      window.location.replace("https://kira980.github.io/backup/");
       return;
     }
 
