@@ -169,7 +169,7 @@
         ]);
 
         if (error || !data || !data.is_active || !data.menu_url) {
-          redirectToBackup();
+         // redirectToBackup();
           return;
         }
 
@@ -177,7 +177,7 @@
 
       } catch (err) {
         console.error("Menu redirect error:", err);
-        redirectToBackup();
+       // redirectToBackup();
       }
     }
 
