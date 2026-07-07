@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <title>La Stella</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+    }
+  </style>
 </head>
 <body>
 
@@ -11,7 +18,7 @@
 
 <script>
   const SUPABASE_URL = 'https://xkwrahcccckmrgiqrhoe.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Inhrd3JhaGNjY2NrbXJnaXFyaG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODk2OTAsImV4cCI6MjA5Mjg2NTY5MH0.IapomfS37BK4KYUgWqfMz2DA8V1_utcFTJl8pU3fUQQ';
+  const SUPABASE_ANON_KEY = 'const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhrd3JhaGNjY2NrbXJnaXFyaG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODk2OTAsImV4cCI6MjA5Mjg2NTY5MH0.IapomfS37BK4KYUgWqfMz2DA8V1_utcFTJl8pU3fUQQ';';
 
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -20,7 +27,7 @@
     const slug = params.get("r");
 
     if (!slug) {
-      window.location.replace("https://kira980.github.io/backup/");
+      console.log("No restaurant slug found in URL");
       return;
     }
 
@@ -31,11 +38,23 @@
       .single();
 
     if (error || !data || !data.is_active || !data.menu_url) {
-      window.location.replace("https://kira980.github.io/backup/");
+      if (slug == "salman") {
+        window.location.replace("https://kira980.github.io/salman_menu/");
+        return;
+      }
+
+      if (slug == "lastella") {
+        window.location.replace("https://kira980.github.io/backup/");
+        return;
+      }
+
+      console.log("Menu unavailable");
       return;
     }
 
-    window.location.replace(data.menu_url);
+    setTimeout(() => {
+      window.location.replace(data.menu_url);
+    }, 1200);
   }
 
   openMenu();
