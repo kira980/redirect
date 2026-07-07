@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>La Stella</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = 'https://xkwrahcccckmrgiqrhoe.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Inhrd3JhaGNjY2NrbXJnaXFyaG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODk2OTAsImV4cCI6MjA5Mjg2NTY5MH0.IapomfS37BK4KYUgWqfMz2DA8V1_utcFTJl8pU3fUQQ';
+
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  async function openMenu() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("r");
+
+    if (!slug) {
+      window.location.replace("https://kira980.github.io/backup/");
+      return;
+    }
+
+    const { data, error } = await db
+      .from("restaurant")
+      .select("menu_url, is_active")
+      .eq("slug", slug)
+      .single();
+
+    if (error || !data || !data.is_active || !data.menu_url) {
+      window.location.replace("https://kira980.github.io/backup/");
+      return;
+    }
+
+    window.location.replace(data.menu_url);
+  }
+
+  openMenu();
+</script>
+
+</body>
+</html>
