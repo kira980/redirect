@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>La Stella Bakery - Delivery Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#fffaf2;
+      --bg-warm:#ffe7c2;
+      --surface:#fffdf8;
+      --surface-strong:#fff1dc;
+      --ink:#201612;
+      --muted:#75665d;
+      --accent:#c9862f;
+      --accent-dark:#5f3010;
+      --accent-soft:#ffdca8;
+      --gold:#efb84d;
+      --berry:#8f2948;
+      --sage:#57755d;
+      --cream:#fff6e6;
+      --border:#ead4bd;
+      --shadow:0 22px 55px rgba(65,35,18,.14);
+      --shadow-soft:0 12px 30px rgba(65,35,18,.08);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top right,rgba(239,184,77,.22),transparent 28rem),
+        radial-gradient(circle at 10% 18%,rgba(143,41,72,.13),transparent 24rem),
+        linear-gradient(180deg,#fffaf2 0%,#fffdf8 44%,#f8efe1 100%);
+      color:var(--ink);
+      font-family:"Cairo",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      padding:12px;
+    }
+    body.is-loading{overflow:hidden;}
+    body.is-loading .page{opacity:0;pointer-events:none;}
+
+    .loading-screen{
+      position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+      background:
+        radial-gradient(circle at 50% 30%,rgba(239,184,77,.28),transparent 22rem),
+        linear-gradient(135deg,#fffaf2,#ffe2bd);
+      transition:opacity .35s ease,visibility .35s ease;
+    }
+    .loading-screen.done{opacity:0;visibility:hidden;}
+    .loader-card{text-align:center;padding:28px;color:var(--ink);}
+    .loader-mark{
+      width:112px;height:112px;border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;
+      background:#111;border:1px solid rgba(239,184,77,.42);box-shadow:var(--shadow);overflow:hidden;
+    }
+    .loader-mark img{width:100%;height:100%;object-fit:cover;display:block;}
+    .loader-title{font-family:"Playfair Display",serif;font-size:24px;margin-bottom:4px;}
+    .loader-text{font-size:13px;color:var(--muted);}
+
+    .page{max-width:1040px;margin:0 auto 52px;position:relative;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 2px 14px;}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0;}
+    .brand-mark{
+      width:58px;height:58px;border-radius:16px;background:#111;display:grid;place-items:center;
+      box-shadow:0 12px 28px rgba(32,22,18,.2);border:1px solid rgba(239,184,77,.36);
+      flex:0 0 auto;overflow:hidden;
+    }
+    .brand-mark img{width:100%;height:100%;object-fit:cover;display:block;}
+    .brand-text{line-height:1.15;}
+    .brand-name{font-family:"Playfair Display",serif;font-size:23px;font-weight:700;color:var(--ink);}
+    .brand-sub{font-size:12px;color:var(--muted);}
+    .lang-switch{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+    .lang-pill{
+      border:1px solid rgba(234,212,189,.85);background:rgba(255,255,255,.76);color:var(--muted);
+      border-radius:999px;padding:7px 11px;font-size:12px;cursor:pointer;box-shadow:0 7px 16px rgba(65,35,18,.05);
+    }
+    .lang-pill.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+    .hero{
+      min-height:390px;border-radius:8px;padding:38px 30px 30px;position:relative;overflow:hidden;
+      background:
+        linear-gradient(90deg,rgba(32,22,18,.84),rgba(32,22,18,.28)),
+        url("https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1400&q=80") center/cover;
+      color:#fff;box-shadow:var(--shadow);display:flex;align-items:flex-end;
+    }
+    .hero::before{
+      content:"";position:absolute;inset:0;
+      background:
+        radial-gradient(circle at 16% 18%,rgba(239,184,77,.2),transparent 16rem),
+        linear-gradient(180deg,transparent 48%,rgba(32,22,18,.2));
+      pointer-events:none;
+    }
+    .hero::after{
+      content:"";position:absolute;inset:auto 0 0;height:6px;
+      background:linear-gradient(90deg,var(--berry),var(--gold),var(--sage));
+    }
+    html[dir="rtl"] .hero{background:
+      linear-gradient(270deg,rgba(32,22,18,.84),rgba(32,22,18,.28)),
+      url("https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1400&q=80") center/cover;}
+    .hero-content{max-width:620px;position:relative;z-index:1;}
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.5);
+      border-radius:999px;padding:6px 12px;font-size:12px;background:rgba(255,255,255,.16);backdrop-filter:blur(8px);
+      margin-bottom:12px;
+    }
+    h1{font-family:"Playfair Display","Cairo",serif;font-size:clamp(36px,7vw,76px);line-height:.95;margin-bottom:14px;letter-spacing:0;text-shadow:0 12px 34px rgba(0,0,0,.28);}
+    .intro-text{font-size:16px;line-height:1.8;max-width:560px;color:rgba(255,255,255,.92);}
+    .hero-actions{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;}
+    .btn-primary,.btn-secondary{
+      border:none;border-radius:999px;padding:12px 19px;font-size:14px;font-weight:700;cursor:pointer;
+      display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    }
+    .btn-primary{background:#fff;color:var(--accent-dark);box-shadow:0 12px 26px rgba(0,0,0,.18);}
+    .btn-secondary{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);color:#fff;}
+
+    .category-strip{
+      position:sticky;top:0;z-index:10;margin:14px -12px 16px;padding:10px 12px;display:flex;gap:8px;overflow:auto;
+      background:rgba(255,250,242,.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(234,212,189,.75);
+    }
+    .category-pill{
+      border:1px solid var(--border);background:#fff;color:var(--muted);border-radius:999px;
+      padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:var(--shadow-soft);
+    }
+    .category-pill.active,.category-pill:hover{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:0 14px 30px rgba(32,22,18,.18);}
+
+    .sections-wrapper{min-height:220px;}
+    .menu-section{display:none;margin-bottom:24px;}
+    .menu-section.active-section{display:block;}
+    .section-header{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:8px 0 12px;}
+    .section-title{font-size:25px;font-weight:800;line-height:1.2;}
+    .section-tag{font-size:12px;color:#fff;background:linear-gradient(135deg,var(--sage),#385740);border-radius:999px;padding:5px 10px;white-space:nowrap;}
+    .section-note{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7;}
+    .menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+    .menu-item{
+      background:linear-gradient(180deg,#fffdf8,#fff8ef);border:1px solid rgba(234,212,189,.9);border-radius:8px;overflow:hidden;box-shadow:var(--shadow-soft);
+      display:grid;grid-template-columns:minmax(0,1fr) 140px;min-height:152px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+    }
+    .menu-item:hover{transform:translateY(-2px);box-shadow:0 18px 38px rgba(65,35,18,.13);border-color:rgba(201,134,47,.42);}
+    .item-main{padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0;}
+    .item-name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+    .item-name{font-size:16px;font-weight:800;line-height:1.35;color:var(--ink);}
+    .item-price{font-size:15px;font-weight:800;color:var(--accent-dark);white-space:nowrap;background:var(--cream);border:1px solid rgba(234,212,189,.85);border-radius:999px;padding:3px 9px;}
+    .item-description{font-size:12px;color:var(--muted);line-height:1.55;}
+    .item-badge{margin-top:auto;font-size:11px;color:var(--sage);font-weight:800;}
+    .item-photo-frame{width:140px;height:100%;border:0;background:var(--surface-strong);cursor:pointer;overflow:hidden;padding:0;display:block;}
+    .item-photo{width:100%;height:100%;display:block;}
+    .image-lightbox{position:fixed;inset:0;z-index:9998;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(43,27,20,.82);}
+    .image-lightbox.open{display:flex;}
+    .lightbox-img{max-width:min(96vw,980px);max-height:88vh;border-radius:8px;object-fit:contain;background:#fff;box-shadow:0 24px 80px rgba(0,0,0,.35);}
+    .lightbox-close{position:fixed;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.35);color:#fff;font-size:28px;line-height:1;cursor:pointer;}
+    .loading-text{text-align:center;color:var(--muted);font-size:14px;padding:48px 0;}
+
+    @media(max-width:760px){
+      body{padding:10px;}
+      .topbar{align-items:flex-start;}
+      .brand-name{font-size:19px;}
+      .brand-mark{width:52px;height:52px;border-radius:14px;}
+      .hero{min-height:350px;padding:28px 19px 25px;}
+      .menu-grid{grid-template-columns:1fr;}
+      .menu-item{grid-template-columns:minmax(0,1fr) 112px;min-height:132px;}
+      .item-photo-frame{width:112px;}
+      .section-header{align-items:flex-start;flex-direction:column;}
+    }
+  </style>
+</head>
+<body class="is-loading">
+  <div class="loading-screen" id="loadingScreen" aria-live="polite">
+    <div class="loader-card">
+      <div class="loader-mark">
+        <img src="https://xkwrahcccckmrgiqrhoe.supabase.co/storage/v1/object/public/images/salman/logo.png" alt="Bakery logo" />
+      </div>
+      <div class="loader-title" id="loaderTitle">Salman Bakery</div>
+      <div class="loader-text" id="loadingScreenText">מכינים את תפריט המשלוחים...</div>
+    </div>
+  </div>
+
+  <div class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="https://xkwrahcccckmrgiqrhoe.supabase.co/storage/v1/object/public/images/salman/logo.png" alt="Bakery logo" />
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">La Stella Bakery</div>
+          <div class="brand-sub" id="brandSub">Fresh bakery delivery</div>
+        </div>
+      </div>
+      <div class="lang-switch">
+        <button class="lang-pill" data-lang="ar">العربية</button>
+        <button class="lang-pill active" data-lang="he">עברית</button>
+        <button class="lang-pill" data-lang="en">English</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-content">
+        <div class="eyebrow" id="eyebrow">נאפה כל יום למשלוח</div>
+        <h1 id="heroTitle">La Stella Bakery</h1>
+        <p class="intro-text" id="introText"></p>
+        <div class="hero-actions">
+          <button class="btn-primary" id="goToMenuBtn"><span id="btnLabel">לתפריט</span><span>↓</span></button>
+          <a class="btn-secondary" href="tel:" id="callOrderBtn"><span id="callLabel">התקשרו להזמנה</span></a>
+        </div>
+      </div>
+    </section>
+
+    <nav class="category-strip" id="categoryStrip"></nav>
+    <div class="sections-wrapper" id="sectionsWrapper">
+      <p class="loading-text" id="loadingText">מכינים את תפריט המשלוחים...</p>
+    </div>
+  </div>
+
+  <div class="image-lightbox" id="imageLightbox" aria-hidden="true">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close image">&times;</button>
+    <img class="lightbox-img" id="lightboxImg" alt="" />
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase.js"></script>
+  <script>
+    const COPY = {
+      ar: {
+        dir: 'rtl',
+        brandSub: 'مخبوزات طازجة للتوصيل',
+        eyebrow: 'مخبوز يومياً للتوصيل',
+        intro: 'كرواسون، كيك، خبز طازج وحلويات جاهزة للتوصيل. اختاروا من المنيو وسنجهز الطلب بعناية من الفرن إلى الباب.',
+        btn: 'تصفح المنيو',
+        call: 'اتصل للطلب',
+        offersTitle: 'عروض التوصيل',
+        loading: 'نحضّر منيو التوصيل...',
+        error: 'تعذّر تحميل المنيو. يرجى المحاولة لاحقاً.',
+        notes: [
+          ['طازج يومياً', 'كل صنف يجهز بكميات صغيرة للحفاظ على الطعم.'],
+          ['مناسب للمناسبات', 'كيك، بوكسات ضيافة وطلبات مسبقة.'],
+          ['توصيل سريع', 'الأسعار والصور محدثة حسب المتوفر اليوم.']
+        ],
+        bakedBadge: 'جاهز للتوصيل'
+      },
+      he: {
+        dir: 'rtl',
+        brandSub: 'מאפייה טרייה למשלוחים',
+        eyebrow: 'נאפה כל יום למשלוח',
+        intro: 'קרואסונים, עוגות, לחמים וקינוחים טריים למשלוח. בחרו מהתפריט ואנחנו נכין את ההזמנה בזהירות מהתנור עד הדלת.',
+        btn: 'לתפריט',
+        call: 'התקשרו להזמנה',
+        offersTitle: 'מבצעי משלוחים',
+        loading: 'מכינים את תפריט המשלוחים...',
+        error: 'שגיאה בטעינת התפריט. נסו שוב מאוחר יותר.',
+        notes: [
+          ['טרי כל יום', 'כל פריט נאפה בכמויות קטנות לשמירה על הטעם.'],
+          ['מתאים לאירועים', 'עוגות, מארזי אירוח והזמנות מראש.'],
+          ['משלוח מהיר', 'המחירים והתמונות מתעדכנים לפי המלאי היומי.']
+        ],
+        bakedBadge: 'זמין למשלוח'
+      },
+      en: {
+        dir: 'ltr',
+        brandSub: 'Fresh bakery delivery',
+        eyebrow: 'Baked daily for delivery',
+        intro: 'Croissants, cakes, fresh bread, and sweets prepared for delivery. Browse the menu and we will pack your order with care from oven to door.',
+        btn: 'Browse menu',
+        call: 'Call to order',
+        offersTitle: 'Delivery Offers',
+        loading: 'Preparing the delivery menu...',
+        error: 'Failed to load the menu. Please try again.',
+        notes: [
+          ['Baked daily', 'Small batches keep every item fresh and fragrant.'],
+          ['Event ready', 'Cakes, hosting boxes, and pre-order bakery trays.'],
+          ['Fast delivery', 'Prices and photos follow today available stock.']
+        ],
+        bakedBadge: 'Ready for delivery'
+      }
+    };
+
+    let mealOffers = {
+      ar: ['بوكس كرواسون مشكل للتوصيل', 'كيك عيد ميلاد حسب الطلب', 'خصم للطلبات المسبقة الكبيرة'],
+      he: ['מארז קרואסונים מעורב למשלוח', 'עוגות יום הולדת בהזמנה', 'הנחה להזמנות גדולות מראש'],
+      en: ['Mixed croissant box for delivery', 'Birthday cakes by pre-order', 'Discounts for large advance orders']
+    };
+
+    let currentLang = 'he';
+    let currentSection = null;
+    let allCategories = [];
+    let allItems = [];
+    let currentRestaurant = null;
+    const DEFAULT_RESTAURANT_ID = '4927c28a-a89e-4339-9eea-cd97e10bb0ab';
+    const DEFAULT_RESTAURANT_SLUG = 'slaman';
+
+    function getRestaurantSlug() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('restaurant') || params.get('slug') || '';
+    }
+
+    function getRestaurantId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('restaurant_id') || params.get('id') || DEFAULT_RESTAURANT_ID;
+    }
+
+    async function loadRestaurant() {
+      const slug = getRestaurantSlug();
+      const restaurantId = getRestaurantId();
+      let query = db
+        .from('restaurant')
+        .select('id,name,slug,menu_url,is_active')
+        .eq('id', restaurantId)
+        .eq('is_active', true)
+        .limit(1);
+
+      if (slug) {
+        query = db
+          .from('restaurant')
+          .select('id,name,slug,menu_url,is_active')
+          .eq('slug', slug)
+          .eq('is_active', true)
+          .limit(1);
+      }
+
+      const { data, error } = await query.maybeSingle();
+      if (error) throw error;
+      if (!data) throw new Error(`Restaurant not found: ${slug || restaurantId}`);
+      return data;
+    }
+
+    function applyRestaurantBrand(restaurant) {
+      const name = restaurant?.name || 'La Stella Bakery';
+      document.title = `${name} - Delivery Menu`;
+      document.querySelector('.brand-name').textContent = name;
+      document.getElementById('loaderTitle').textContent = name;
+      document.getElementById('heroTitle').textContent = name;
+      document.querySelectorAll('.brand-mark img,.loader-mark img').forEach(img => {
+        img.alt = `${name} logo`;
+      });
+    }
+
+    function text(value) {
+      return String(value || '');
+    }
+
+    function esc(value) {
+      return text(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getItemName(item, lang) {
+      if (lang === 'en' && item.name_en && item.name_en.trim()) return item.name_en;
+      if (lang === 'he' && item.name_he && item.name_he.trim()) return item.name_he;
+      return item.name_ar || item.name_en || '';
+    }
+
+    function getItemDescription(item, lang) {
+      if (lang === 'en' && item.description_en && item.description_en.trim()) return item.description_en;
+      if (lang === 'he' && item.description_he && item.description_he.trim()) return item.description_he;
+      return item.description_ar || item.description_en || '';
+    }
+
+    function getCatName(cat, lang) {
+      if (lang === 'en' && cat.name_en && cat.name_en.trim()) return cat.name_en;
+      if (lang === 'he' && cat.name_he && cat.name_he.trim()) return cat.name_he;
+      return cat.name_ar || cat.name_en || '';
+    }
+
+    function getCatNote(cat, lang) {
+      if (lang === 'en' && cat.note_en && cat.note_en.trim()) return cat.note_en;
+      if (lang === 'he' && cat.note_he && cat.note_he.trim()) return cat.note_he;
+      return cat.note_ar || cat.note_en || '';
+    }
+
+    function clampNumber(value, min, max, fallback) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return fallback;
+      return Math.max(min, Math.min(max, number));
+    }
+
+    function getImageStyle(item) {
+      const fit = ['cover', 'contain', 'fill'].includes(item.image_fit) ? item.image_fit : 'cover';
+      const zoom = clampNumber(item.image_zoom, 60, 200, 100);
+      const posX = clampNumber(item.image_pos_x, 0, 100, 50);
+      const posY = clampNumber(item.image_pos_y, 0, 100, 50);
+      return `object-fit:${fit};object-position:${posX}% ${posY}%;transform:scale(${zoom / 100});transform-origin:${posX}% ${posY}%;`;
+    }
+
+    function setLoadingText(value) {
+      const loading = document.getElementById('loadingText');
+      const screen = document.getElementById('loadingScreenText');
+      if (loading) loading.textContent = value;
+      if (screen) screen.textContent = value;
+    }
+
+    function revealLoadedMenu() {
+      const screen = document.getElementById('loadingScreen');
+      document.body.classList.remove('is-loading');
+      if (screen) {
+        screen.classList.add('done');
+        setTimeout(() => screen.remove(), 400);
+      }
+    }
+
+    function render(lang) {
+      currentLang = lang;
+      const L = COPY[lang];
+      document.documentElement.lang = lang;
+      document.documentElement.dir = L.dir;
+
+      document.querySelectorAll('.lang-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+
+      document.getElementById('brandSub').textContent = L.brandSub;
+      document.getElementById('eyebrow').textContent = L.eyebrow;
+      document.getElementById('introText').textContent = L.intro;
+      document.getElementById('btnLabel').textContent = L.btn;
+      document.getElementById('callLabel').textContent = L.call;
+      setLoadingText(L.loading);
+
+      if (!allCategories.length) return;
+
+      const strip = document.getElementById('categoryStrip');
+      strip.innerHTML = '';
+      allCategories.forEach(cat => {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'category-pill' + (cat.id === currentSection ? ' active' : '');
+        pill.textContent = getCatName(cat, lang);
+        pill.dataset.section = cat.id;
+        pill.addEventListener('click', () => activateSection(cat.id));
+        strip.appendChild(pill);
+      });
+
+      const wrapper = document.getElementById('sectionsWrapper');
+      wrapper.innerHTML = '';
+      allCategories.forEach(cat => {
+        const section = document.createElement('section');
+        const catItems = allItems.filter(item => item.category_id === cat.id);
+        const note = getCatNote(cat, lang);
+        section.className = 'menu-section' + (cat.id === currentSection ? ' active-section' : '');
+        section.id = 'sec-' + cat.id;
+        section.innerHTML = `
+          <div class="section-header">
+            <h2 class="section-title">${esc(getCatName(cat, lang))}</h2>
+            ${cat.tag ? `<div class="section-tag">${esc(cat.tag)}</div>` : ''}
+          </div>
+          ${note ? `<p class="section-note">${esc(note)}</p>` : ''}
+          <div class="menu-grid"></div>
+        `;
+
+        const grid = section.querySelector('.menu-grid');
+        catItems.forEach(item => {
+          const article = document.createElement('article');
+          article.className = 'menu-item';
+          const priceText = item.price_label && item.price_label.trim()
+            ? item.price_label
+            : (item.price != null ? '₪' + Number(item.price).toLocaleString() : '');
+          const name = esc(getItemName(item, lang));
+          const description = esc(getItemDescription(item, lang));
+          article.innerHTML = `
+            <div class="item-main">
+              <div class="item-name-row">
+                <span class="item-name">${name}</span>
+                ${priceText ? `<span class="item-price">${esc(priceText)}</span>` : ''}
+              </div>
+              ${description ? `<p class="item-description">${description}</p>` : ''}
+              <div class="item-badge">${esc(L.bakedBadge)}</div>
+            </div>
+            ${item.image_url ? `<button class="item-photo-frame" type="button" data-full-image="${esc(item.image_url)}" data-image-alt="${name}"><img src="${esc(item.image_url)}" alt="${name}" class="item-photo" loading="lazy" style="${getImageStyle(item)}" onerror="this.closest('.item-photo-frame').style.display='none'" /></button>` : ''}
+          `;
+          grid.appendChild(article);
+        });
+        wrapper.appendChild(section);
+      });
+    }
+
+    function activateSection(id) {
+      currentSection = id;
+      document.querySelectorAll('.menu-section').forEach(section => {
+        section.classList.toggle('active-section', section.id === 'sec-' + id);
+      });
+      document.querySelectorAll('.category-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.section === id);
+      });
+      const strip = document.getElementById('categoryStrip');
+      if (strip) {
+        const top = strip.getBoundingClientRect().top + window.scrollY - 4;
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+    }
+
+    function openImageLightbox(src, alt) {
+      const lightbox = document.getElementById('imageLightbox');
+      const img = document.getElementById('lightboxImg');
+      img.src = src;
+      img.alt = alt || '';
+      lightbox.classList.add('open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeImageLightbox() {
+      const lightbox = document.getElementById('imageLightbox');
+      const img = document.getElementById('lightboxImg');
+      lightbox.classList.remove('open');
+      lightbox.setAttribute('aria-hidden', 'true');
+      img.src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('goToMenuBtn').addEventListener('click', () => {
+      document.getElementById('categoryStrip')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    document.getElementById('lightboxClose').addEventListener('click', closeImageLightbox);
+    document.getElementById('imageLightbox').addEventListener('click', event => {
+      if (event.target.id === 'imageLightbox') closeImageLightbox();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeImageLightbox();
+    });
+    document.getElementById('sectionsWrapper').addEventListener('click', event => {
+      const frame = event.target.closest('.item-photo-frame');
+      if (frame) openImageLightbox(frame.dataset.fullImage, frame.dataset.imageAlt);
+    });
+    document.querySelectorAll('.lang-pill').forEach(btn => {
+      btn.addEventListener('click', () => render(btn.dataset.lang));
+    });
+
+    render(currentLang);
+
+    (async function loadMenu() {
+      try {
+        currentRestaurant = await loadRestaurant();
+        applyRestaurantBrand(currentRestaurant);
+
+        const [catResult, itemResult] = await Promise.all([
+          db.from('categories')
+            .select('id,name_ar,name_en,name_he,note_ar,note_en,note_he,tag,sort_order')
+            .eq('restaurant_id', currentRestaurant.id)
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true }),
+          db.from('menu_items')
+            .select('id,category_id,name_ar,name_en,name_he,description_ar,description_en,description_he,price,price_label,image_url,image_fit,image_zoom,image_pos_x,image_pos_y,sort_order')
+            .eq('restaurant_id', currentRestaurant.id)
+            .eq('is_available', true)
+            .order('sort_order', { ascending: true })
+        ]);
+
+        if (catResult.error) throw catResult.error;
+        if (itemResult.error) throw itemResult.error;
+        allCategories = catResult.data || [];
+        allItems = itemResult.data || [];
+        currentSection = allCategories[0]?.id || null;
+
+        render(currentLang);
+        revealLoadedMenu();
+      } catch (err) {
+        console.error('Bakery menu load error:', err);
+        setLoadingText(COPY[currentLang].error);
+        document.body.classList.remove('is-loading');
+      }
+    })();
+  </script>
+</body>
+</html>
